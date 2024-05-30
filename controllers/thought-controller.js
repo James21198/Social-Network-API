@@ -24,7 +24,7 @@ const thoughtController = {
             res.status(500).json(err);
         }
     },
-    async createThoought(req, res) {
+    async createThought(req, res) {
         try {
             const dbThoughtData = await Thought.create(req.body);
             const dbUserData = await User.findOneAndUpdate(
