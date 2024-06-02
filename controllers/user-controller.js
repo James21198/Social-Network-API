@@ -1,122 +1,89 @@
-const { Thought, User } = require('../models');
+const { User, Thought } = require('../models');
 
-const userController = {
-    async getUsers(req, res) {
-        try {
-            const dbUserData = await User.find()
-                .sort({ createdAt: -1 });
+module.exports = {
+  async getUsers(req, res) {
+    try {
+      const users = await User.find();
+      res.json(users);
+    } catch (err) {
+      res.status(500).json(err);
+    }
+  },
+  async getSingleUser(req, res) {
+    try {
+      const user = await User.findOne({ _id: req.params.userId })
+        .select('-__v');
 
-            res.json(dbUserData);
-        }   catch (err) {
-            console.log(err);
-            res.status(500).json(err);
-        }
-    },
-    async getSingleUser(req, res) {
-        try {
-            const dbUserData = await User.findOne({ _id: req.params.userId });
-            if (!dbUserData) {
-                return res.status(404).json({ message: 'No users find with this ID'});
-            }
-            res.json(dbUserData);
-        }   catch (err) {
-            console.log(err);
-            res.status(500).json(err);
-        }
-    },
-    async createUser(req, res) {
-        try {
-            const dbThoughtData = await Thought.create(req.body);
-            const dbUserData = await User.findOneAndUpdate(
-                { _id: req.body.userId },
-                { $push: { thoughts: dbThoughtData._id }},
-                { new: true }
-            );
+      if (!user) {
+        return res.status(404).json({ message: 'No user with that ID' });
+      }
 
-            if (!dbUserData) {
-                return res
-                    .status(404)
-                    .json({ message: 'Thought created but no user with this ID'});
-            }
+      res.json(user);
+    } catch (err) {
+      res.status(500).json(err);
+    }
+  },
+  async createUser(req, res) {
+    try {
+      const user = await User.create(req.body);
+      res.json(user);
+    } catch (err) {
+      res.status(500).json(err);
+    }
+  },
+  async deleteUser(req, res) {
+    try {
+      const user = await User.findOneAndDelete({ _id: req.params.userId });
 
-            res.json({ message: 'Thought Created Successfully'});
-        }   catch (err) {
-            console.log(err);
-            res.status(500).json(err);
-        }
-    },
-    async updateUser (req, res) {
-        const dbUserData = await User.findOneAndUpdate(
-            { _id: req.body.userId },
-            { $set: req.body },
-            { runValidators: true, new: true }
-        );
+      if (!user) {
+        return res.status(404).json({ message: 'No user with that ID' });
+      }
 
-        if (!dbUserData) {
-            return res.status(404).json({ message: 'No user found with this ID'});
-        }
-        res.json(dbUserData);
-        console.log(err);
-        res.status(500).json(err);
-    },
-    async deleteUser(req, res) {
-        try {
-            const dbThoughtData = await Thought.findOneAndRemove({
-                _id: req.params.thoughtId,
-            });
-            if (!dbThoughtData) {
-                return res.status(404).json({ message: 'No thought found with this ID'});
-            }
+      await Thought.deleteMany({ _id: { $in: user.thoughts } });
+      res.json({ message: 'User and associated thoughts deleted!' })
+    } catch (err) {
+      res.status(500).json(err);
+    }
+  },
+  async addFriend(req, res) {
+    console.log('You are adding a friend');
+    console.log(req.body);
 
-            const dbUserData = User.findOneAndUpdate(
-                { thoughts: req.params.thoughtId },
-                { $pull: { thoughts: req.params.thoughtId }},
-                { new: true }
-            );
+    try {
+      const user = await User.findOneAndUpdate(
+        { _id: req.params.userId },
+        { $addToSet: { friends: req.body } },
+        { runValidators: true, new: true }
+      );
 
-            if (!dbUserData) {
-                return res
-                    .status(404)
-                    .json({ message: 'Thought created but no user was found with this ID'});
-            }
-            res.json({ message: 'Thought deleted successfully'});
-        }   catch (err) {
-            console.log(err);
-            res.status(500).json(err);
-        }
-    },
-    async addReaction(req, res) {
-        try {
-            const dbThoughtData = await Thought.findOneAndUpdate(
-                { _id: req.params.thoughtId },
-                { $addToSet: { reactions: req.body}},
-                { runValidators: true, new: true}
-            );
-            if (!dbThoughtData) {
-                return res.status(404).json({ message: 'No thought found with this ID'});
-            }
-            res.json(dbThoughtData);
-        }   catch (err) {
-            console.log(err);
-            res.status(500).json(err);
-        }
-    },
-    async removeReaction(req, res) {
-        try{
-            const dbThoughtData = await Thought.findOneAndUpdate(
-                { _id: req.params.thoughtId },
-                { $pull: { reactions: {reactionId: req.params.reactionId}}},
-                { runValidators: true, new: true}
-            );
-            if(!dbThoughtData) {
-                return res.status(404).json({ message: 'No thought found with this ID'});
-            }
-            res.json(dbThoughtData);
-        }   catch (err) {
-            console.log(err);
-            res.status(500).json(err);
-        }
-    },
+      if (!user) {
+        return res
+          .status(404)
+          .json({ message: 'No user found with that ID' });
+      }
+
+      res.json(user);
+    } catch (err) {
+      res.status(500).json(err);
+    }
+  },
+  async removeFriend(req, res) {
+    try {
+      const user = await User.findOneAndUpdate(
+        { _id: req.params.userId },
+        { $pull: { friend: { friendId: req.params.friendId } } },
+        { runValidators: true, new: true }
+      );
+
+      if (!user) {
+        return res
+          .status(404)
+          .json({ message: 'No user found with that ID' });
+      }
+
+      res.json(user);
+    } catch (err) {
+      res.status(500).json(err);
+    }
+  },
 };
-
-module.exports = thoughtController;
