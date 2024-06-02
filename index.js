@@ -7,6 +7,10 @@ const cwd = process.cwd();
 const PORT = process.env.PORT || 3001;
 const app = express();
 
+const activity = cwd.includes('social-network-API')
+  ? cwd.split('social-network-API')[1]
+  : cwd;
+
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(routes);

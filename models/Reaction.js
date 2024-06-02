@@ -14,8 +14,9 @@ const reactionSchema = new Schema(
           maxlength: 25,
         },
         createdAt: {
-          type: Date,
-          default: Date.now,
+            type: Date,
+            default: Date.now,
+            get: createdDate => new Date(createdDate).toLocaleDateString(), 
         },
         userName: {
             type: String,

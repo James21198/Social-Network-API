@@ -75,6 +75,18 @@ const names = [
 ];
 
 const thoughtDescriptions = [
+  'You wont believe what happened here',
+  'What a great day to do the garden',
+  'Going out for a meal with the family',
+  'Now Engaged!!!!',
+  'Look at our new Dog!!!',
+  'Look at our new Cat!!!',
+  'I Definently recommend this Restaurant',
+  'Had a shocking day at work',
+  'Really need a holliday',
+];
+
+const reactionData = [
   'I cant believe this!!!',
   'Really???',
   'OMG!!!!',
@@ -93,7 +105,12 @@ const thoughtDescriptions = [
   'LOL!!!',
   'We need to meet up soon',
   'I cant get over this!!',
-];
+]
+
+const getRandomEmail = () => {
+  const names = getRandomName();
+  return `${names.toLowerCase()}@example.com`
+};
 
 const getRandomArrItem = (arr) => arr[Math.floor(Math.random() * arr.length)];
 
@@ -105,10 +122,20 @@ const getRandomThoughts = (int) => {
   for (let i = 0; i < int; i++) {
     results.push({
       thoughtName: getRandomArrItem(thoughtDescriptions),
-      score: Math.floor(Math.random() * (99 - 70 + 1) + 70),
     });
   }
   return results;
 };
 
-module.exports = { getRandomName, getRandomThoughts };
+const getRandomReaction = (int) => {
+  let results = [];
+  for (let i = 0; i < int; i++) {
+    results.push({
+      userName: getRandomName(),
+      reactionBody: getRandomArrItem(reactionData),
+    });
+  }
+  return results;
+};
+
+module.exports = { getRandomName, getRandomThoughts, getRandomEmail, getRandomReaction };
