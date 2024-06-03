@@ -108,14 +108,19 @@ const reactionData = [
 ]
 
 const getRandomEmail = () => {
-  const names = getRandomName();
-  return `${names.toLowerCase()}@example.com`
+  const names = getRandomName().toLowerCase().split(' ').join('.');
+  return `${names}@example.com`;
 };
 
 const getRandomArrItem = (arr) => arr[Math.floor(Math.random() * arr.length)];
 
 const getRandomName = () =>
   `${getRandomArrItem(names)} ${getRandomArrItem(names)}`;
+
+const getUserName = (userName) => {
+  const names = userName.split(' ').join('.')
+  return names;
+};
 
 const getRandomThoughts = (int) => {
   const results = [];
@@ -138,4 +143,4 @@ const getRandomReaction = (int) => {
   return results;
 };
 
-module.exports = { getRandomName, getRandomThoughts, getRandomEmail, getRandomReaction };
+module.exports = { getRandomName, getRandomThoughts, getRandomEmail, getRandomReaction, getUserName };
